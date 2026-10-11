@@ -2,13 +2,13 @@ services:
   backend:
     build: ./backend
     expose:
-      - "3001"
+      - "80"
     restart: unless-stopped
 
   frontend:
     build: ./frontend
     expose:
-      - "3000"
+      - "80"
     depends_on:
       - backend
     restart: unless-stopped
