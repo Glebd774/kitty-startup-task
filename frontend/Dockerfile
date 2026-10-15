@@ -6,20 +6,18 @@ RUN npm install
 COPY frontend.ts index.jade ./
 RUN npx tsc frontend.ts
 
-# Стадия 2 — nginx + node в одном контейнере
-FROM nginx:alpine
+# Стадия 2 — nginx + node + supervisord
+FROM alpine:3.20
 
-# Ставим node внутрь nginx-образа
-RUN apk add --no-cache nodejs
+# nginx, node, supervisord
+RUN apk add --no-cache nginx nodejs supervisor
 
-# Копируем собранное приложение
+WORKDIR /app
 COPY --from=build /app /app
 
-# Конфиг nginx + скрипт запуска
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
+COPY nginx.conf /etc/nginx/http.d/default.conf
+COPY supervisord.conf /etc/supervisord.conf
 
 EXPOSE 80
 
-CMD ["/start.sh"]
+CMD ["supervisord", "-c", "/etc/supervisord.conf"]
